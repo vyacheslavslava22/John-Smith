@@ -1,0 +1,83 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', ui-monospace, monospace;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+:root {
+  color-scheme: dark;
+
+  --background: oklch(0.17 0.022 262);
+  --foreground: oklch(0.95 0.008 250);
+
+  --card: oklch(0.22 0.026 262);
+  --card-foreground: oklch(0.95 0.008 250);
+
+  --popover: oklch(0.22 0.026 262);
+  --popover-foreground: oklch(0.95 0.008 250);
+
+  --primary: oklch(0.66 0.17 254);
+  --primary-foreground: oklch(0.15 0.03 262);
+
+  --secondary: oklch(0.26 0.026 262);
+  --secondary-foreground: oklch(0.95 0.008 250);
+
+  --muted: oklch(0.25 0.024 262);
+  --muted-foreground: oklch(0.7 0.022 258);
+
+  --accent: oklch(0.79 0.14 76);
+  --accent-foreground: oklch(0.18 0.03 262);
+
+  --destructive: oklch(0.63 0.2 22);
+
+  --border: oklch(0.32 0.026 262);
+  --input: oklch(0.29 0.026 262);
+  --ring: oklch(0.66 0.17 254);
+
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.grid-backdrop {
+  background-image: linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 46px 46px;
+  opacity: 0.35;
+  mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, black, transparent 72%);
+}
