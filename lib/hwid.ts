@@ -58,6 +58,17 @@ export function generateIdentity(preset?: DevicePreset): Identity {
   }
 }
 
+/** Проверка HWID, введённого вручную. Разрешаем hex-ID и UUID. */
+export function checkHwid(value: string): { ok: boolean; hint: string } {
+  const v = value.trim()
+  if (!v) return { ok: false, hint: "Введи HWID или переключись на автогенерацию" }
+  if (/\s/.test(v)) return { ok: false, hint: "HWID не должен содержать пробелов" }
+  if (/^[0-9a-f]{16}$/i.test(v)) return { ok: true, hint: "ANDROID_ID · 16 hex" }
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v)) return { ok: true, hint: "UUID" }
+  if (/^[0-9a-z._:-]{8,64}$/i.test(v)) return { ok: true, hint: `произвольный ID · ${v.length} симв.` }
+  return { ok: false, hint: "Допустимы латиница, цифры и . _ : - (8–64 символа)" }
+}
+
 /** Заголовки, которые Happ отправляет панели (Remnawave / Marzban HWID-режим) */
 export function identityHeaders(id: Identity): Record<string, string> {
   return {

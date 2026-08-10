@@ -18,7 +18,8 @@ export default function Page() {
           </h1>
           <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
             Вставь ссылку подписки, сгенерируй Android ID устройства — и панель отдаст все конфиги: VLESS Reality,
-            Hysteria2, Trojan, Shadowsocks. С экспортом в Clash, sing-box, Xray JSON и base64.
+            Hysteria2, Trojan, Shadowsocks. Проверка живых узлов, QR для телефона и экспорт в Clash, sing-box, Xray JSON
+            и base64.
           </p>
         </header>
 

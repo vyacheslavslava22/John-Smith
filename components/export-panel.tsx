@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { Download, FileCode2 } from "lucide-react"
+import { NODES, plural } from "@/lib/format"
 import type { Node } from "@/lib/parse"
 import { exportBase64, exportClash, exportLinks, exportSingBox, exportXray } from "@/lib/export"
 import { CopyButton } from "./copy-button"
@@ -16,28 +17,41 @@ const TABS: Tab[] = [
   { key: "xray", label: "Xray JSON", file: "xray.json", build: exportXray },
 ]
 
-export function ExportPanel({ nodes, raw }: { nodes: Node[]; raw: string }) {
+export function ExportPanel({
+  nodes,
+  selectedIds,
+  raw,
+}: {
+  nodes: Node[]
+  selectedIds: Set<string>
+  raw: string
+}) {
   const [tab, setTab] = useState("links")
-  const active = TABS.find((t) => t.key === tab)!
+  const [onlySelected, setOnlySelected] = useState(false)
+  const active = TABS.find((t) => t.key === tab) ?? TABS[0]
+
+  const selectedNodes = useMemo(() => nodes.filter((n) => selectedIds.has(n.id)), [nodes, selectedIds])
+  const source = onlySelected && selectedNodes.length > 0 ? selectedNodes : nodes
 
   const content = useMemo(() => {
     if (tab === "raw") return raw
     try {
-      return active.build(nodes)
+      return active.build(source)
     } catch (e) {
       return `Ошибка генерации: ${(e as Error).message}`
     }
-  }, [tab, nodes, raw, active])
+  }, [tab, source, raw, active])
 
   const filename = tab === "raw" ? "raw-response.txt" : active.file
 
   function download() {
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
-    a.href = URL.createObjectURL(blob)
+    a.href = url
     a.download = filename
     a.click()
-    URL.revokeObjectURL(a.href)
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -65,10 +79,25 @@ export function ExportPanel({ nodes, raw }: { nodes: Node[]; raw: string }) {
         </div>
       </header>
 
-      <div className="flex items-center gap-2 border-b border-border px-4 py-2">
+      <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-2">
         <span className="font-mono text-xs text-muted-foreground">
           {filename} · {(content.length / 1024).toFixed(1)} KB
+          {tab !== "raw" && ` · ${source.length} ${plural(source.length, NODES)}`}
         </span>
+
+        {tab !== "raw" && (
+          <label className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={onlySelected}
+              onChange={(e) => setOnlySelected(e.target.checked)}
+              disabled={selectedNodes.length === 0}
+              className="size-3.5 accent-[var(--primary)]"
+            />
+            только выбранные ({selectedNodes.length})
+          </label>
+        )}
+
         <div className="ml-auto flex gap-2">
           <CopyButton value={content} label="Копировать всё" />
           <button
@@ -82,7 +111,9 @@ export function ExportPanel({ nodes, raw }: { nodes: Node[]; raw: string }) {
         </div>
       </div>
 
-      <pre className="max-h-96 overflow-auto p-4 font-mono text-[11px] leading-relaxed text-muted-foreground">{content}</pre>
+      <pre className="max-h-96 overflow-auto p-4 font-mono text-[11px] leading-relaxed text-muted-foreground">
+        {content}
+      </pre>
     </section>
   )
 }
