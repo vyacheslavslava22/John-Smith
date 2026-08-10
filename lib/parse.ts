@@ -225,6 +225,82 @@ function nodeFromClashProxy(p: any, profile: string, index: number): Node | null
   }
 }
 
+/**
+ * ss:// в двух видах:
+ *   ss://base64(method:password)@host:port#tag   (SIP002, современный)
+ *   ss://base64(method:password@host:port)#tag   (legacy, всё в base64)
+ */
+function nodeFromSsLink(link: string, profile: string, index: number): Node | null {
+  const hashAt = link.indexOf("#")
+  const tag = hashAt === -1 ? "" : decodeURIComponent(link.slice(hashAt + 1))
+  let body = (hashAt === -1 ? link : link.slice(0, hashAt)).slice("ss://".length)
+
+  // отделяем плагины (?plugin=...)
+  const qAt = body.indexOf("?")
+  const query = qAt === -1 ? "" : body.slice(qAt + 1)
+  if (qAt !== -1) body = body.slice(0, qAt)
+
+  let method = ""
+  let password = ""
+  let host = ""
+  let port = 0
+
+  const atAt = body.lastIndexOf("@")
+  if (atAt !== -1) {
+    // SIP002: userinfo может быть base64 или уже открытым "method:password"
+    const userinfoRaw = body.slice(0, atAt)
+    const hostPart = body.slice(atAt + 1)
+    let userinfo = decodeURIComponent(userinfoRaw)
+    if (!userinfo.includes(":")) {
+      try {
+        userinfo = b64decode(userinfoRaw)
+      } catch {
+        return null
+      }
+    }
+    const ci = userinfo.indexOf(":")
+    method = userinfo.slice(0, ci)
+    password = userinfo.slice(ci + 1)
+    const pi = hostPart.lastIndexOf(":")
+    host = hostPart.slice(0, pi).replace(/^\[|\]$/g, "")
+    port = Number(hostPart.slice(pi + 1))
+  } else {
+    // legacy: всё тело в base64
+    let decoded: string
+    try {
+      decoded = b64decode(body)
+    } catch {
+      return null
+    }
+    const m = decoded.match(/^([^:]+):(.*)@(.+):(\d+)$/)
+    if (!m) return null
+    method = m[1]
+    password = m[2]
+    host = m[3].replace(/^\[|\]$/g, "")
+    port = Number(m[4])
+  }
+
+  if (!host || !Number.isFinite(port) || port <= 0) return null
+
+  const plugin = new URLSearchParams(query).get("plugin") || undefined
+
+  return {
+    id: `${profile}::ss::${index}`,
+    name: tag || `shadowsocks-${index}`,
+    profile,
+    protocol: "shadowsocks",
+    address: host,
+    port,
+    password,
+    method,
+    network: "tcp",
+    security: "none",
+    obfs: plugin,
+    raw: link,
+    share: link,
+  }
+}
+
 /** Готовая ссылка (vless://, ss:// и т.д.) -> Node */
 function nodeFromLink(link: string, profile: string, index: number): Node | null {
   const trimmed = link.trim()
@@ -252,6 +328,8 @@ function nodeFromLink(link: string, profile: string, index: number): Node | null
         share: trimmed,
       }
     }
+
+    if (scheme === "ss") return nodeFromSsLink(trimmed, profile, index)
 
     const u = new URL(trimmed)
     const q = u.searchParams

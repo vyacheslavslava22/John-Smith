@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // ВАЖНО: output: 'standalone' ломает деплой на Vercel
+  // (ENOENT .next/next-server.js.nft.json) — платформа сама трейсит файлы.
   images: {
     unoptimized: true,
   },
