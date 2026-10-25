@@ -85,6 +85,10 @@ export function exportClash(nodes: Node[]): string {
     proxies.push(`  - { ${inner} }${extra}`)
   })
 
+  if (proxies.length === 0) {
+    return "# Нет узлов, которые Clash/Mihomo умеет импортировать.\n"
+  }
+
   return `mixed-port: 7890
 allow-lan: false
 mode: rule
@@ -202,6 +206,10 @@ export function exportSingBox(nodes: Node[]): string {
     outbounds.push(JSON.parse(JSON.stringify(ob)))
   })
 
+  if (outbounds.length === 0) {
+    return JSON.stringify({ error: "Нет узлов, которые sing-box умеет импортировать" }, null, 2)
+  }
+
   const config = {
     log: { level: "warn", timestamp: true },
     dns: {
@@ -239,6 +247,10 @@ export function exportSingBox(nodes: Node[]): string {
 }
 
 export function exportXray(nodes: Node[]): string {
+  if (nodes.length === 0) {
+    return JSON.stringify({ error: "Нет узлов для экспорта" }, null, 2)
+  }
+
   const outbounds = nodes.map((n, i) => {
     const tag = `${n.name}-${i + 1}`
     const streamSettings: any = { network: n.network || "tcp", security: n.security === "none" ? "none" : n.security }

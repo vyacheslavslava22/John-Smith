@@ -50,8 +50,13 @@ export function ExportPanel({
     const a = document.createElement("a")
     a.href = url
     a.download = filename
+    a.rel = "noopener"
+    // ссылку нужно вставить в DOM, иначе Firefox отменяет скачивание,
+    // а revoke делаем отложенно — иначе браузер не успевает прочитать blob
+    document.body.appendChild(a)
     a.click()
-    URL.revokeObjectURL(url)
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 2000)
   }
 
   return (

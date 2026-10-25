@@ -13,7 +13,7 @@
 | Генерация X-HWID | ANDROID_ID (16 hex) или UUID для iOS-профилей, кнопка «Новый HWID» |
 | Свой HWID | Можно вписать существующий ID устройства вручную — с проверкой формата |
 | 8 профилей устройств | Pixel, Samsung, Redmi, POCO, OnePlus, iPhone — подставляют нужные `user-agent` и `x-device-model` |
-| Разбор подписки | Xray JSON, Clash/Mihomo YAML, base64-список, обычный список ссылок |
+| Разбор подписки | Xray JSON, sing-box JSON, Clash/Mihomo YAML (блочный и inline), base64-список, обычный список ссылок |
 | Протоколы | VLESS (в т.ч. Reality), VMess, Trojan, Shadowsocks, Hysteria, Hysteria2, TUIC |
 | Проверка узлов | TCP-пинг с сервера: задержка в мс, мёртвые узлы, сортировка по скорости |
 | QR-коды | QR для любого конфига и для самой ссылки подписки — сканируешь телефоном |
